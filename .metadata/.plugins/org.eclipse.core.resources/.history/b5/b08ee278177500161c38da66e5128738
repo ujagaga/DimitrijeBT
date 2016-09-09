@@ -1,0 +1,196 @@
+/*
+ * main.c
+ *
+ *  Created on: Jul 5, 2016
+ *      Author: ujagaga
+ */
+
+#include <util/delay.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+
+#define USART_BAUDRATE 	(9600)
+#define BAUD_PRESCALE 	(((( F_CPU / 16) + ( USART_BAUDRATE / 2) ) / ( USART_BAUDRATE ) ) - 1)
+#define waitTxReady()	while (( UCSRA & (1 << UDRE ) ) == 0)
+#define MAX_MSG_SIZE	(4)
+#define QueueSize		(32)
+#define QueueMask		(QueueSize - 1)
+#define QueueEmpty()	(((WrIdx - RdIdx) & QueueMask) == 0)
+#define QueueFull()		(((WrIdx - RdIdx) & QueueMask) > (QueueSize - 2))
+
+typedef enum{
+	msgAck = 0,
+	msgFail = 1,
+	msgFull = 2,
+	msgStopCurrent = 0xFE,
+	msgStopAll = 0xFF
+}msg_t;
+
+typedef struct{
+	uint8_t state;
+	uint8_t delay;
+}state_t;
+
+
+volatile state_t ActionQueue[QueueSize];
+volatile uint8_t RdIdx = 0;
+volatile uint8_t WrIdx = 0;
+volatile bool stopCurrent_flag = false;
+volatile bool stopAll_flag = false;
+volatile uint8_t rx_buffer[MAX_MSG_SIZE] = {0};
+volatile uint8_t rx_index = 0;
+
+bool addToActionQueue(uint8_t value, uint8_t duration);
+
+
+void sendMsg(uint8_t oneByte)
+{
+	UDR = oneByte;
+	waitTxReady();
+	UDR = '\n';
+	waitTxReady();
+}
+
+ISR(USART_RX_vect) {
+
+	uint8_t received = UDR;
+
+	if(rx_index < MAX_MSG_SIZE)
+	{
+		rx_buffer[rx_index] = received;
+
+//		if(((rx_index == 0) && (rx_buffer[0] != 0xFE)) || ((rx_index == 1) && (rx_buffer[1] != 0xFF))){
+//			rx_index = 0;
+//			received = 0;
+//		}
+
+		rx_index++;
+
+		if(rx_index == MAX_MSG_SIZE){
+			rx_index = 0;
+		}
+
+		PORTB = received;
+
+
+//		if(rx_index == MAX_MSG_SIZE){
+//
+//			uint8_t response = msgAck;
+//
+//			if(rx_buffer[2] == msgStopCurrent){
+//				stopCurrent_flag = true;
+//			}else if(rx_buffer[2] == msgStopAll){
+//				stopAll_flag = true;
+//			}else{
+//				if(!addToActionQueue(rx_buffer[2], rx_buffer[3])){
+//					response = msgFail;
+//				}
+//			}
+//			rx_index = 0;
+//
+//			sendMsg(response);
+//
+//		}
+
+
+	}else{
+		sendMsg(msgFull);
+	}
+
+}
+
+
+void uart_init(void)
+{
+
+	DDRD = 2; // set TX pin as output
+
+	// lets set the baud rate
+	UBRRL = (unsigned char)BAUD_PRESCALE;
+	UBRRH = (BAUD_PRESCALE >> 8);
+
+	// enable tx and rx
+	UCSRB = (1<<TXEN) | (1<<RXEN);
+
+	//  enable RX interrupt
+	UCSRB |= (1 << RXCIE);
+
+	rx_index = 0;
+}
+
+
+void custom_delay(uint8_t interval){
+	while((interval > 0) && !stopCurrent_flag ){
+		_delay_ms(100);
+		interval--;
+	}
+
+	stopCurrent_flag = false;
+}
+
+
+bool addToActionQueue(uint8_t value, uint8_t duration){
+	if(QueueFull()){
+		return false;
+	}
+
+	ActionQueue[WrIdx & QueueMask].state = value;
+	ActionQueue[WrIdx & QueueMask].delay = duration;
+	WrIdx++;
+	return true;
+}
+
+
+bool getFromActionQueue(uint8_t* state, uint8_t* duration){
+	if(QueueEmpty()){
+		return false;
+	}
+
+	*state = ActionQueue[RdIdx & QueueMask].state;
+	*duration = ActionQueue[RdIdx & QueueMask].delay;
+
+	RdIdx++;
+	return true;
+}
+
+
+int main( void ){
+
+	uint8_t state, duration;
+
+	ACSR |= 1 << ACD; /* Disable analog comparer to reduce power consumption */
+
+	DDRB = 0xFF; /* Configure output port B*/
+
+	uart_init();
+
+	sei();
+
+	while(1){
+//		if(getFromActionQueue(&state, &duration)){
+//
+//			PORTB = (state << 1);  /* Only pins 1 through 7 are connected  */
+//			custom_delay(duration);
+//		}else{
+//
+//			PORTB = 0;
+//		}
+//
+//		if(stopAll_flag){
+//
+//			PORTB = 0;
+//			RdIdx = WrIdx;
+//			stopAll_flag = false;
+//		}
+
+		asm("nop");
+
+	}
+	return 0;
+}
+
+
+

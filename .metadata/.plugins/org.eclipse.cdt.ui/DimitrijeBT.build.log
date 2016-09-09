@@ -1,0 +1,39 @@
+
+**** Build of configuration Debug for project DimitrijeBT ****
+
+make all 
+Building file: ../main.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -Os -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=attiny2313 -DF_CPU=1000000UL -MMD -MP -MF"main.d" -MT"main.d" -c -o "main.o" "../main.c"
+Finished building: ../main.c
+ 
+Building target: DimitrijeBT.elf
+Invoking: AVR C Linker
+avr-gcc -Wl,-Map,DimitrijeBT.map -mmcu=attiny2313 -o "DimitrijeBT.elf"  ./main.o   
+Finished building target: DimitrijeBT.elf
+ 
+Invoking: AVR Create Extended Listing
+avr-objdump -h -S DimitrijeBT.elf  >"DimitrijeBT.lss"
+Finished building: DimitrijeBT.lss
+ 
+Create Flash image (ihex format)
+avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex DimitrijeBT.elf  "DimitrijeBT.hex"
+Finished building: DimitrijeBT.hex
+ 
+Invoking: Print Size
+avr-size --format=avr --mcu=attiny2313 DimitrijeBT.elf
+AVR Memory Usage
+----------------
+Device: attiny2313
+
+Program:     622 bytes (30.4% Full)
+(.text + .data + .bootloader)
+
+Data:         71 bytes (55.5% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+**** Build Finished ****

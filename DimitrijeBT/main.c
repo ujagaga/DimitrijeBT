@@ -57,21 +57,20 @@ void sendMsg(uint8_t oneByte)
 }
 
 uint8_t charToInt(uint8_t data){
-	uint8_t result = 0;
 
-	if(data < '0'){
-		result = 0;
-	}else if(data < 58){
-		result -= '0';
-	}else if(data < 'A'){
-		result = 0;
-	}else if(data < 'G'){
-		result = data - 'A' + 10;
-	}else{
-		result = 0;
+	if((data > 47) && (data < 58)){
+		return (data - '0');
 	}
 
-	return result;
+	if((data > 64) && (data < 71)){
+		return (data - 'A' + 10);
+	}
+
+	if((data > 96) && (data < 103)){
+		return (data - 'a' + 10);
+	}
+
+	return 0;
 }
 
 
@@ -82,6 +81,17 @@ ISR(USART_RX_vect) {
 	if(received == msgStart){
 		rx_index = 0;
 	}
+
+
+//	if(received == ':'){
+//		PORTB = 0xF0;
+//	}else{
+//		PORTB = (charToInt(received) << 1);
+//	}
+//
+//	_delay_us(30);
+//	PORTB = 0;
+
 
 	switch(rx_index){
 		case 1:
@@ -193,13 +203,12 @@ int main( void ){
 		}
 
 		if(stopAll_flag){
-
 			PORTB = 0;
 			RdIdx = WrIdx;
 			stopAll_flag = false;
 		}
 
-//		asm("nop");
+		asm("nop");
 
 	}
 	return 0;

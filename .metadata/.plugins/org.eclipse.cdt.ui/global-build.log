@@ -1,10 +1,8 @@
-
-**** Build of configuration Debug for project DimitrijeBT ****
-
+12:27:45 **** Incremental Build of configuration Debug for project DimitrijeBT ****
 make all 
 Building file: ../main.c
 Invoking: AVR Compiler
-avr-gcc -Wall -g2 -gstabs -Os -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=attiny2313 -DF_CPU=1000000UL -MMD -MP -MF"main.d" -MT"main.d" -c -o "main.o" "../main.c"
+avr-gcc -Wall -g2 -gstabs -Os -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=attiny2313 -DF_CPU=1000000UL -MMD -MP -MF"main.d" -MT"main.o" -c -o "main.o" "../main.c"
 Finished building: ../main.c
  
 Building target: DimitrijeBT.elf
@@ -26,7 +24,7 @@ AVR Memory Usage
 ----------------
 Device: attiny2313
 
-Program:     622 bytes (30.4% Full)
+Program:     636 bytes (31.1% Full)
 (.text + .data + .bootloader)
 
 Data:         71 bytes (55.5% Full)
@@ -35,5 +33,3 @@ Data:         71 bytes (55.5% Full)
 
 Finished building: sizedummy
  
-
-**** Build Finished ****
